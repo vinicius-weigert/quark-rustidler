@@ -136,7 +136,7 @@ impl Game {
         {
             let mut locale = self.locale.borrow_mut();
 
-            locale.select_lang(self.settings.get("main.locale").unwrap_or("en-US"))?;
+            locale.select_lang(self.settings.get("main.locale").unwrap())?;
         }
 
         terminal.clear()?;

@@ -98,12 +98,12 @@ impl Localizor {
     }
 
     //Select language
-    pub fn select_lang(&mut self, lang: &'static str) -> Result<(), Box<dyn Error>> {
-        if !self.resources.contains_key(lang) {
+    pub fn select_lang(&mut self, lang: String) -> Result<(), Box<dyn Error>> {
+        if !self.resources.contains_key(&*lang) {
             Err(format!("Cannot find resource lang {}", lang))?
         }
 
-        self.selected_lang = lang.to_string();
+        self.selected_lang = lang.clone();
         info!("Selected lang {}", lang);
 
         Ok(())

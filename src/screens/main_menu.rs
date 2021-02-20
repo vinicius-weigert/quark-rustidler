@@ -86,9 +86,9 @@ impl MainMenu {
                 let mut locale = self.locale.borrow_mut();
 
                 if locale.selected_lang == "pt-BR" {
-                    locale.select_lang("en-US")?;
+                    locale.select_lang("en-US".to_string())?;
                 } else {
-                    locale.select_lang("pt-BR")?;
+                    locale.select_lang("pt-BR".to_string())?;
                 }
             },
             KeyCode::Right => {
