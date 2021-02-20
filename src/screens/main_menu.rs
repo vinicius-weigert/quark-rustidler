@@ -109,6 +109,6 @@ impl MainMenu {
     }
 
     pub fn once(&mut self) {
-        info!("AAAAAAAAAAAAA2");
+        
     }
 }

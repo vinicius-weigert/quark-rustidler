@@ -75,6 +75,6 @@ impl Welcome {
     }
 
     pub fn once(&mut self) {
-        info!("AAAAAAAAAAAAA");
+        
     }
 }
