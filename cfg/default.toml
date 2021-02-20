@@ -1,0 +1,6 @@
+[main]
+locale = "en-US"
+
+[logging]
+level = "debug"
+max_stored = 3
