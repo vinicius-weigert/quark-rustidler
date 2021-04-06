@@ -1,5 +1,3 @@
-use log::*;
-
 use crate::util::centered_rect;
 use crate::localize::Localizor;
 use crate::resources::ResourceHandler;
@@ -19,24 +17,13 @@ use std::{
 
 use tui::{
     Frame,
-    backend::CrosstermBackend,
     text::Text,
+    layout::Alignment,
+    backend::CrosstermBackend,
     widgets::{
         Wrap,
         Block,
-        Borders,
         Paragraph
-    },
-    style::{
-        Color,
-        Style,
-        Modifier
-    },
-    layout::{
-        Layout,
-        Alignment,
-        Direction,
-        Constraint,
     }
 };
 
