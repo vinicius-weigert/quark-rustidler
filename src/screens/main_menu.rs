@@ -1,7 +1,9 @@
-use log::*;
-
 use crate::localize::Localizor;
-use crate::event::EventHandler;
+use crate::util::centered_rect;
+use crate::event::{
+    Events,
+    EventHandler
+};
 
 use crossterm::event::{
     KeyCode,
@@ -17,25 +19,24 @@ use std::{
 
 use tui::{
     Frame,
+    text::Text,
     backend::CrosstermBackend,
-    text::{
-        Span,
-        Spans,
-    },
     style::{
         Color,
         Style
     },
     layout::{
+        Rect,
         Layout,
+        Alignment,
         Direction,
-        Constraint
+        Constraint,
     },
     widgets::{
-        Tabs,
+        Wrap,
         Block,
         Borders,
-        BorderType
+        Paragraph,
     }
 };
 
@@ -49,66 +50,84 @@ pub struct MainMenu {
 
 impl MainMenu {
     pub fn draw<W>(&self, frame: &mut Frame<CrosstermBackend<W>>) where W: Write {
-        let chunks = Layout::default()
+        let locale = self.locale.borrow();
+        let buttons = self.buttons.iter();
+
+        let rect = centered_rect(30, 30, frame.size());
+        let rect = Layout::default()
             .direction(Direction::Vertical)
-            .margin(1)
-            .constraints([Constraint::Percentage(8), Constraint::Percentage(92)].as_ref())
-            .split(frame.size());
+            .constraints(
+                vec![Constraint::Percentage(100/buttons.len() as u16)]
+                    .iter()
+                    .cycle()
+                    .take(buttons.len())
+                    .map(|c| *c)
+                    .collect::<Vec<Constraint>>()
+            )
+            .split(rect[1]);
 
-        let tabs = Tabs::new(self.buttons.iter().cloned().map(|s| {
-            Spans::from(vec![
-                Span::from(self.locale.borrow().get(s, None).unwrap())
-            ])
-        }).collect())
-            .block(Block::default().borders(Borders::LEFT | Borders::RIGHT | Borders::TOP).border_type(BorderType::Rounded))
-            .select(self.selected_btn)
-            .highlight_style(Style::default().fg(Color::Gray).bg(Color::White))
-            .divider("|");
+        let btn_blocks: Vec<(Paragraph, Rect)> = buttons.enumerate()
+            .map(|(i, btn)| {
+                let label = locale.get(btn, None).unwrap();
+                let style = if i == self.selected_btn {
+                    Style::default()
+                        .fg(Color::Black)
+                        .bg(Color::White)
+                } else {
+                    Style::default()
+                        .fg(Color::White)
+                        .bg(Color::Black)
+                };
 
-        let border = Borders::LEFT | Borders::RIGHT | Borders::BOTTOM;
+                let paragraph = Paragraph::new(Text::from(label))
+                    .style(style)
+                    .wrap(Wrap { trim: false })
+                    .alignment(Alignment::Center)
+                    .block(Block::default().borders(Borders::ALL));
+                let r = rect[i];
 
-        let page = match self.selected_btn {
-            0 => Block::default().title("Bibibii").borders(border),
-            1 => Block::default().title("Babababab").borders(border),
-            2 => Block::default().title("Bebebebe").borders(border),
-            3 => Block::default().title("AhahshahshaAAAAAAAA").borders(border),
-            4 => Block::default().title("Aehasuehuash").borders(border),
-            _ => Block::default().title("d:").borders(border),
-        };
+                (paragraph, r)
+            })
+            .collect();
 
-        frame.render_widget(tabs, chunks[0]);
-        frame.render_widget(page, chunks[1]);
+        for block in btn_blocks {
+            frame.render_widget(block.0, block.1);
+        }
     }
 
     pub fn on_key(&mut self, key: KeyEvent) -> Result<(), Box<dyn Error>> {
-        match key.code {
-            KeyCode::Char('r') => {
-                let mut locale = self.locale.borrow_mut();
+        let mut events = self.events.borrow_mut();
 
-                if locale.selected_lang == "pt-BR" {
-                    locale.select_lang("en-US".to_string())?;
-                } else {
-                    locale.select_lang("pt-BR".to_string())?;
-                }
-            },
-            KeyCode::Right => {
+        match key.code {
+            KeyCode::Down => {
                 self.selected_btn += 1;
                 self.selected_btn %= self.buttons.len();
             },
-            KeyCode::Left => {
+            KeyCode::Up => {
                 if self.selected_btn == 0 {
                     self.selected_btn = self.buttons.len()-1;
                 } else {
                     self.selected_btn -= 1;
                 }
             },
+            KeyCode::Left  | 
+            KeyCode::Right | 
+            KeyCode::Enter | 
+            KeyCode::Char(' ') => {
+                match self.selected_btn {
+                    0 => events.send(Events::SkipToScreen("saves".to_string())),
+                    1 => events.send(Events::SkipToScreen("settings".to_string())),
+                    2 => events.send(Events::SkipToScreen("about".to_string())),
+                    _ => events.send(Events::Quit(0))
+                }?;
+            },
             _ => {}
-        };
+        }
 
         Ok(())
     }
 
     pub fn once(&mut self) {
-        
+        self.buttons = vec!["menu-btn-play", "menu-btn-settings", "menu-btn-about", "menu-btn-quit"];
     }
 }

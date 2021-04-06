@@ -19,6 +19,7 @@ use std::{
 
 
 pub enum Events {
+    Quit(i32),
     SkipToScreen(String),
     CrosstermEvent(Event),
     CrosstermThreadError

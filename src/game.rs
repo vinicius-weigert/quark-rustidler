@@ -88,9 +88,9 @@ impl Game {
     fn load_screens(&mut self) {
         let main_menu = MainMenu {
             selected_btn: 0,
+            buttons: Vec::new(),
             locale: Rc::clone(&self.locale),
             events: Rc::clone(&self.event_handler),
-            buttons: vec!["menu-btn-play", "menu-btn-settings", "menu-btn-about", "menu-btn-quit"]
         };
         let main_menu = Rc::new(RefCell::new(main_menu));
 
@@ -205,6 +205,10 @@ impl Game {
                         "main_menu" => main_menu.once(),
                         _ => {}
                     };
+                },
+                Events::Quit(e) => {
+                    info!("Exit code: {}", e);
+                    break 'main;
                 },
                 _ => {}
             }
