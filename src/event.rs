@@ -30,11 +30,17 @@ pub struct EventHandler {
     pub rx: Receiver<Events>
 }
 
-impl EventHandler {
-    pub fn new() -> EventHandler {
+impl Default for EventHandler {
+    fn default() -> EventHandler {
         let (tx, rx) = channel::<Events>();
 
         EventHandler { tx, rx }
+    }
+}
+
+impl EventHandler {
+    pub fn new() -> EventHandler {
+        EventHandler::default()
     }
 
     pub fn send(&mut self, event: Events) -> Result<(), Box<dyn Error>> {

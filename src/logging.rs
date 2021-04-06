@@ -64,7 +64,7 @@ fn prepare_folder(folder: PathBuf, max_files: u32) -> Result<(), Box<dyn Error>>
         .filter(|entry| entry.extension().unwrap().to_str() == Some("log"))
         .collect();
 
-    if entries.len() == 0 {
+    if entries.is_empty() {
         //This means we don't need to manage any files, so we can just skip this part
         return Ok(());
     }

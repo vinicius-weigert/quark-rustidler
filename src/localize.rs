@@ -49,18 +49,18 @@ impl LangBundle {
         //Check if there's language-name set into the ftl file
         let pattern = bundle.get_message("language-name");
         if pattern.is_none() {
-            Err(format!("Missign language-name identifier"))?
+            return Err("Missign language-name identifier".into());
         }
         let pattern = pattern.unwrap().value();
         if pattern.is_none() {
-            Err(format!("Missign language-name identifier"))?
+            return Err("Missign language-name identifier".into());
         }
 
         //Pass it to a string
         let mut errors = vec![];
         let lang_name = bundle.format_pattern(&pattern.unwrap(), None, &mut errors).to_string();
-        if errors.len() > 0 {
-            Err(format!("Failed to format pattern for {:?}. {:?}", file, errors))?
+        if !errors.is_empty() {
+            return Err(format!("Failed to format pattern for {:?}. {:?}", file, errors).into());
         }
 
         info!("Done loading {}", filename);
@@ -75,13 +75,19 @@ pub struct Localizor {
     pub resources: HashMap<String, LangBundle>
 }
 
-impl Localizor {
-    //Create a new instance and load the bundles
-    pub fn new() -> Localizor {
+impl Default for Localizor {
+    fn default() -> Localizor {
         Localizor {
             resources: HashMap::new(),
             selected_lang: "".to_string()
         }
+    }
+}
+
+impl Localizor {
+    //Create a new instance and load the bundles
+    pub fn new() -> Localizor {
+        Localizor::default()
     }
 
     //Load folder
@@ -91,7 +97,7 @@ impl Localizor {
 
         let resource = self.resources.get("en-US");
         if resource.is_none() {
-            Err("Missign english base translation".to_string())?
+            return Err("Missign english base translation".into());
         }
 
         Ok(())
@@ -100,7 +106,7 @@ impl Localizor {
     //Select language
     pub fn select_lang(&mut self, lang: String) -> Result<(), Box<dyn Error>> {
         if !self.resources.contains_key(&*lang) {
-            Err(format!("Cannot find resource lang {}", lang))?
+            return Err(format!("Cannot find resource lang {}", lang).into());
         }
 
         self.selected_lang = lang.clone();
@@ -120,7 +126,7 @@ impl Localizor {
 
             //RIP, the message doesn't exists
             if !resource.bundle.has_message(id) {
-                Err(format!("Message's id \"{}\" doesn't exist", id))?
+                return Err(format!("Message's id \"{}\" doesn't exist", id).into());
             }
         }
 
@@ -131,9 +137,9 @@ impl Localizor {
         let mut errors = vec![];
         let result = resource.bundle.format_pattern(&pattern.unwrap(), args, &mut errors);
 
-        if errors.len() > 0 {
+        if !errors.is_empty() {
             /*No need to crash, change for warning*/
-            Err(format!("Failed to format pattern for {:?} id. {:?}", id, errors))?
+            return Err(format!("Failed to format pattern for {:?} id. {:?}", id, errors).into());
         }
 
         Ok(result.to_string())

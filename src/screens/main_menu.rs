@@ -61,7 +61,7 @@ impl MainMenu {
                     .iter()
                     .cycle()
                     .take(buttons.len())
-                    .map(|c| *c)
+                    .copied()
                     .collect::<Vec<Constraint>>()
             )
             .split(rect[1]);

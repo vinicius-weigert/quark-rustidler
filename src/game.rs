@@ -52,8 +52,8 @@ pub struct Game {
     pub resource_handler: Rc<RefCell<ResourceHandler>>,
 }
 
-impl Game {
-    pub fn new() -> Game {
+impl Default for Game {
+    fn default() -> Game {
         Game {
             screens: Screens::default(),
             current_screen: String::from("uninitialized"),
@@ -62,6 +62,12 @@ impl Game {
             event_handler: Rc::new(RefCell::new(EventHandler::new())),
             resource_handler: Rc::new(RefCell::new(ResourceHandler::new()))
         }
+    }
+}
+
+impl Game {
+    pub fn new() -> Game {
+        Game::default()
     }
 
     pub fn load(&mut self) -> Result<(), Box<dyn Error>>{

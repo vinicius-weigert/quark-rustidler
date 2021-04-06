@@ -30,11 +30,17 @@ pub struct ResourceHandler {
     pub resources: HashMap<String, Resource>
 }
 
-impl ResourceHandler {
-    pub fn new() -> ResourceHandler {
+impl Default for ResourceHandler {
+    fn default() -> ResourceHandler {
         ResourceHandler {
             resources: HashMap::new()
         }
+    }
+}
+
+impl ResourceHandler {
+    pub fn new() -> ResourceHandler {
+        ResourceHandler::default()
     }
 
     pub fn load(&mut self, folder: &Path) -> Result<(), Box<dyn Error>> {
@@ -81,7 +87,7 @@ impl ResourceHandler {
 
         
         //Well, there's no shit in here
-        if keys.len() < 1 {
+        if keys.is_empty() {
             return None;
         }
 
@@ -94,7 +100,7 @@ impl ResourceHandler {
         let mut rng = rand::thread_rng();
         let number = rng.gen_range(0..=(keys.len()-1));
 
-        return self.resources.get(keys[number]);
+        self.resources.get(keys[number])
     }
 
     pub fn random_range(&self, id: &'static str, dbounds: Option<(usize, usize)>) -> Option<&Resource> {
@@ -107,7 +113,7 @@ impl ResourceHandler {
 
         
         //Well, there's no shit in here
-        if keys.len() < 1 {
+        if keys.is_empty() {
             return None;
         }
 
@@ -121,14 +127,14 @@ impl ResourceHandler {
         let mut bounds = (0, keys.len()-1);
 
         if dbounds.is_some() {
-            let dbounds = dbounds.unwrap();
+            if let Some((a, b)) = dbounds {
+                if a < b {
+                    bounds.0 = a;
+                }
 
-            if dbounds.0 < dbounds.1 {
-                bounds.0 = dbounds.0;
-            }
-
-            if dbounds.1 < bounds.1 {
-                bounds.1 = dbounds.1;
+                if b < bounds.1 {
+                    bounds.1 = b;
+                }
             }
         }
 
@@ -137,6 +143,6 @@ impl ResourceHandler {
         let number = rng.gen_range(bounds.0..=bounds.1);
 
 
-        return self.resources.get(keys[number]);
+        self.resources.get(keys[number])
     }
 }
