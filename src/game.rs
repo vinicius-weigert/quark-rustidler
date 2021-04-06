@@ -40,6 +40,7 @@ use crate::screens::{
 use crate::logging;
 use crate::config::init_cfg;
 use crate::localize::Localizor;
+use crate::resources::ResourceHandler;
 
 
 pub struct Game {
@@ -47,7 +48,8 @@ pub struct Game {
     pub settings: Config,
     pub current_screen: String,
     pub locale: Rc<RefCell<Localizor>>,
-    pub event_handler: Rc<RefCell<EventHandler>>
+    pub event_handler: Rc<RefCell<EventHandler>>,
+    pub resource_handler: Rc<RefCell<ResourceHandler>>,
 }
 
 impl Game {
@@ -57,7 +59,8 @@ impl Game {
             current_screen: String::from("uninitialized"),
             locale: Rc::new(RefCell::new(Localizor::new())),
             settings: init_cfg().expect("Couldn't init config"),
-            event_handler: Rc::new(RefCell::new(EventHandler::new()))
+            event_handler: Rc::new(RefCell::new(EventHandler::new())),
+            resource_handler: Rc::new(RefCell::new(ResourceHandler::new()))
         }
     }
 
@@ -66,10 +69,16 @@ impl Game {
 
         info!("Loading locales");
         self.load_locales()?;
+        info!("Loading resources");
+        self.load_resources()?;
         info!("Loading screens");
         self.load_screens();
 
         Ok(())
+    }
+
+    fn load_resources(&mut self) -> Result<(), Box<dyn Error>> {
+        self.resource_handler.borrow_mut().load(Path::new("./res/ascii"))
     }
 
     fn load_locales(&mut self) -> Result<(), Box<dyn Error>> {
@@ -88,8 +97,10 @@ impl Game {
         info!("Created MainMenu screen");
 
         let welcome = Welcome {
+            logo: String::from(""),
             locale: Rc::clone(&self.locale),
-            events: Rc::clone(&self.event_handler)
+            events: Rc::clone(&self.event_handler),
+            resources: Rc::clone(&self.resource_handler)
         };
         let welcome: Rc<RefCell<Welcome>> = Rc::new(RefCell::new(welcome));
 
