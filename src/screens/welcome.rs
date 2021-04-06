@@ -2,6 +2,7 @@ use log::*;
 
 use crate::util::centered_rect;
 use crate::localize::Localizor;
+use crate::resources::ResourceHandler;
 use crate::event::{
     Events,
     EventHandler
@@ -39,19 +40,18 @@ use tui::{
     }
 };
 
-//Change it to ResourceHandler and then add more logos
-const LOGO: &str = include_str!("../../res/ascii/logos/logo.txt");
-
 pub struct Welcome {
+    pub logo: String,
     pub locale: Rc<RefCell<Localizor>>,
     pub events: Rc<RefCell<EventHandler>>,
+    pub resources: Rc<RefCell<ResourceHandler>>,
 }
 
 impl Welcome {
     pub fn draw<W>(&self, frame: &mut Frame<CrosstermBackend<W>>) where W: Write {
         let locale = self.locale.borrow();
 
-        let logo_text = Text::from(LOGO);
+        let logo_text = Text::from(self.logo.to_owned());
         let pktp_text = Text::from(locale.get("pktp", None).unwrap());
         let rect = centered_rect(90, 30, frame.size());
 
@@ -75,6 +75,8 @@ impl Welcome {
     }
 
     pub fn once(&mut self) {
-        
+        let resources = self.resources.borrow();
+
+        self.logo = resources.random("logos").unwrap().ascii.to_owned();
     }
 }

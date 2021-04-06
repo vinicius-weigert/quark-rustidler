@@ -6,6 +6,7 @@ pub mod logging;
 pub mod screens;
 pub mod localize;
 pub mod constants;
+pub mod resources;
 
 use game::Game;
 
