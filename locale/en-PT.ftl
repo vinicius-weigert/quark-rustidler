@@ -1,4 +1,4 @@
-language-name = English
+language-name = Pirate English
 
 pktp = Press any key to continue
 
