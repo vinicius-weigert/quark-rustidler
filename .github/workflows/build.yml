@@ -10,7 +10,7 @@ jobs:
         os: [windows-latest, macos-10.15, ubuntu-latest]
     steps:
      - name: Install alsa
-       if: runner.os == "Linux"
+       if: runner.os == 'Linux'
        run: sudo apt-get install libasound2-dev
      - uses: actions/checkout@v2
      - name: Build
