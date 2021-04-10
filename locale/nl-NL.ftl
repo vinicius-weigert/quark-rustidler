@@ -1,4 +1,4 @@
-language-name = English
+language-name = Nederlands
 
 pktp = Press any key to continue
 
