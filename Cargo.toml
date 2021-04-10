@@ -6,8 +6,8 @@ edition = "2018"
 
 [dependencies]
 log = "0.4.14"
-rodio = "0.13.0"
 rand = "0.8.3"
+soloud = "0.3.0"
 config = "0.10.1"
 fluent = "0.15.0"
 app_dirs = "1.2.1"
