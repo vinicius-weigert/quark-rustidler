@@ -1,0 +1,3 @@
+files:
+  - source: /locale/en-US.ftl
+    translation: /locale/%locale%.ftl
