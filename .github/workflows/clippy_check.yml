@@ -1,7 +1,5 @@
 name: Clippy check
-on:
-  workflow_dispatch:
-  pull_request:
+on: [push, pull_request]
 jobs:
   clippy_check:
     runs-on: ubuntu-latest
