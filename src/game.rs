@@ -33,6 +33,7 @@ use crate::event::{
     EventHandler
 };
 use crate::screens::{
+    Saves,
     Screens,
     Welcome,
     MainMenu
@@ -112,7 +113,16 @@ impl Game {
 
         info!("Created Welcome screen");
 
+        let saves = Saves {
+            locale: Rc::clone(&self.locale),
+            events: Rc::clone(&self.event_handler),
+        };
+        let saves: Rc<RefCell<Saves>> = Rc::new(RefCell::new(saves));
+
+        info!("Created Saves screen");
+
         self.screens = Screens {
+            saves: Some(saves),
             welcome: Some(welcome),
             main_menu: Some(main_menu)
         };
@@ -138,15 +148,19 @@ impl Game {
         let welcome = self.screens.welcome.as_ref().unwrap();
         let mut welcome = welcome.borrow_mut();
 
+        let saves = self.screens.saves.as_ref().unwrap();
+        let mut saves = saves.borrow_mut();
+
 
         //Run crossterm events
         {
             //Fucking borrow it onscope, so it don't fuck up other borrowinginwings
             let mut events = self.event_handler.borrow_mut();
+            
             //Yes, we need to run it here
             info!("Running crossterm loop");
             events.run_crossterm();
-            events.send(Events::SkipToScreen("welcome".to_string()))?;
+            events.send(Events::SkipToScreen("saves".to_string()))?;
         }
 
         //Set locale to the selected on the config, or just default to english
@@ -156,6 +170,7 @@ impl Game {
             locale.select_lang(self.settings.get("main.locale").unwrap())?;
         }
 
+
         terminal.clear()?;
 
         info!("Entering the main loop");
@@ -163,6 +178,7 @@ impl Game {
             //DRAWING STUFF
             //Draw what you have to draw on the terminal
             match self.current_screen.as_str() {
+                "saves" => terminal.draw(|f| saves.draw(f))?,
                 "welcome" => terminal.draw(|f| welcome.draw(f))?,
                 "main_menu" => terminal.draw(|f| main_menu.draw(f))?,
                 _ => {}
@@ -197,6 +213,7 @@ impl Game {
 
                     //Propagate the events to the proper active screen
                     match self.current_screen.as_str() {
+                        "saves" => saves.on_key(key)?,
                         "welcome" => welcome.on_key(key)?,
                         "main_menu" => main_menu.on_key(key)?,
                         _ => {}
@@ -207,6 +224,7 @@ impl Game {
                     self.current_screen = s;
 
                     match self.current_screen.as_str() {
+                        "saves" => saves.once(),
                         "welcome" => welcome.once(),
                         "main_menu" => main_menu.once(),
                         _ => {}
