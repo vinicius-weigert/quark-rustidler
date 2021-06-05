@@ -178,11 +178,11 @@ impl Game {
             //DRAWING STUFF
             //Draw what you have to draw on the terminal
             match self.current_screen.as_str() {
-                "saves" => terminal.draw(|f| saves.draw(f))?,
-                "welcome" => terminal.draw(|f| welcome.draw(f))?,
-                "main_menu" => terminal.draw(|f| main_menu.draw(f))?,
+                "saves" => { terminal.draw(|f| saves.draw(f))?; },
+                "welcome" => { terminal.draw(|f| welcome.draw(f))?; },
+                "main_menu" => { terminal.draw(|f| main_menu.draw(f))?; },
                 _ => {}
-            }
+            };
 
             
             //EVENT HANDLING
